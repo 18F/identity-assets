@@ -1,11 +1,10 @@
 require 'active_support/core_ext'
 require 'minitest/autorun'
-require 'byebug'
 require 'yaml'
 require 'openssl'
 
-config_file = File.read('config/test_service_providers.yml')
-config_yaml = YAML.safe_load(config_file)
+config_file = File.read('config/service_providers.yml')
+config_yaml = YAML.load(config_file)['production']
 
 # rubocop:disable Metrics/BlockLength
 describe 'Service Provider config' do
@@ -46,13 +45,23 @@ describe 'Service Provider config' do
       end
 
       it 'should have protocol value' do
+        next unless config['protocol'].present?
+
         assert config['protocol'] == 'saml' ||
                config['protocol'] == 'oidc'
       end
 
       describe 'return_to_sp_url' do
-        it 'should have a value' do
+        it 'should have a value if the service provider is a web app' do
+          next if config['native']
+
           assert config['return_to_sp_url'].present?
+        end
+
+        it 'should not have a value if the service provider is a native app' do
+          next unless config['native']
+
+          assert !config['return_to_sp_url'].present?
         end
 
         it 'should be a valid url' do
@@ -69,6 +78,8 @@ describe 'Service Provider config' do
         end
 
         it 'should only have prod or staging as values' do
+          next unless config['restrict_to_deploy_env'].present?
+
           assert config['restrict_to_deploy_env'] == 'prod' ||
                  config['restrict_to_deploy_env'] == 'staging'
         end
