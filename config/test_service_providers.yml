@@ -13,19 +13,6 @@
     - 'https://staging.agency.gov/openid'
   return_to_sp_url: 'https://prod.agency.gov'
   push_notification_url: 'https://prod.agency.gov/notifications'
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
   native: true
   protocol: 'oidc'
@@ -43,18 +30,10 @@
   return_to_sp_url: 'https://prod.agency.gov'
   push_notification_url: 'https://prod.agency.gov/notifications'
   help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
+    forgot_password:
+      en: Forgot password help text in English
+      es: Forgot password help text in Spanish
+      fr: Forgot password help text in French
   restrict_to_deploy_env: 'prod'
   protocol: 'saml'
 
@@ -84,19 +63,6 @@
     - state
     - zipcode
     - phone
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
   failure_to_proof_url: 'https://www.example.com'
   protocol: 'oidc'
@@ -126,19 +92,6 @@
     - state
     - zipcode
     - phone
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
   failure_to_proof_url: 'https://www.example.com'
   protocol: 'saml'

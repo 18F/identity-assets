@@ -1,5 +1,6 @@
 require 'active_support/core_ext'
 require 'minitest/autorun'
+require 'byebug'
 require 'yaml'
 require 'openssl'
 
@@ -209,9 +210,9 @@ describe 'Service Provider config' do
       it 'should have valid definition of help text if there is one' do
         next unless config['help_text'].present?
 
-        assert (config['help_text'].keys - %w[en es fr]).empty?
-        config['help_text'].each do |locale|
-          assert (locale.last.keys - %w[forgot_password sign_up sign_in]).empty?
+        assert (config['help_text'].keys - %w[forgot_password sign_up sign_in]).empty?
+        config['help_text'].each do |section|
+          assert (section.last.keys - %w[en es fr]).empty?
         end
       end
       # rubocop:enable Lint/ParenthesesAsGroupedExpression
