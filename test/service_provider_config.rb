@@ -40,6 +40,15 @@ describe 'Service Provider config' do
         assert parsed_uri.scheme.present? && parsed_uri.host.present?
       end
 
+      it 'should have protocol value' do
+        assert config['protocol'].present?
+      end
+
+      it 'should have protocol value' do
+        assert config['protocol'] == 'saml' ||
+               config['protocol'] == 'oidc'
+      end
+
       describe 'return_to_sp_url' do
         it 'should have a value' do
           assert config['return_to_sp_url'].present?
