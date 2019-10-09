@@ -5,7 +5,7 @@
   friendly_name: 'Example OIDC IAL1 app'
   agency: 'GSA'
   agency_id: 9
-  ial: '1'
+  ial: 1
   logo: 'generic.svg'
   cert: 'example'
   redirect_uris:
@@ -13,27 +13,16 @@
     - 'https://staging.agency.gov/openid'
   return_to_sp_url: 'https://prod.agency.gov'
   push_notification_url: 'https://prod.agency.gov/notifications'
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
+  native: true
+  protocol: 'oidc'
 
 # Example SAML IAL1 app
 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:example_agency:example_saml_ial1':
   friendly_name: 'Example SAML IAL1 app'
   agency: 'HHS'
   agency_id: 19
-  ial: '1'
+  ial: 1
   logo: 'generic.svg'
   cert: 'example'
   acs_url: 'https://prod.agency.gov/auth/saml/callback'
@@ -41,26 +30,19 @@
   return_to_sp_url: 'https://prod.agency.gov'
   push_notification_url: 'https://prod.agency.gov/notifications'
   help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
+    forgot_password:
+      en: Forgot password help text in English
+      es: Forgot password help text in Spanish
+      fr: Forgot password help text in French
   restrict_to_deploy_env: 'prod'
+  protocol: 'saml'
 
 # Example OIDC IAL2 app
 'urn:gov:gsa:openidconnect.profiles:sp:sso:example_agency:example_oidc_ial2':
   friendly_name: 'Example OIDC IAL2 app'
   agency: 'DOD'
   agency_id: 8
-  ial: '2'
+  ial: 2
   logo: 'generic.svg'
   cert: 'example'
   redirect_uris:
@@ -81,27 +63,16 @@
     - state
     - zipcode
     - phone
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
+  failure_to_proof_url: 'https://www.example.com'
+  protocol: 'oidc'
 
 # Example SAML IAL2 app
 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:example_agency:example_saml_ial2':
   friendly_name: 'Example SAML IAL2 app'
   agency: 'DOI'
   agency_id: 16
-  ial: '2'
+  ial: 2
   logo: 'generic.svg'
   cert: 'example'
   acs_url: 'https://prod.agency.gov/auth/saml/callback'
@@ -121,17 +92,6 @@
     - state
     - zipcode
     - phone
-  help_text:
-    en:
-      forgot_password: Forgot password help text in English
-      sign_in: Sign in help text in English
-      sign_up: Sign up help text in English
-    es:
-      forgot_password: Forgot password help text in Spanish
-      sign_in: Sign in help text in Spanish
-      sign_up: Sign up help text in Spanish
-    fr:
-      forgot_password: Forgot password help text in French
-      sign_in: Sign in help text in French
-      sign_up: Sign up help text in French
   restrict_to_deploy_env: 'prod'
+  failure_to_proof_url: 'https://www.example.com'
+  protocol: 'saml'
