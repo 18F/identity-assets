@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-config_file = File.read('config/test_service_providers.yml')
+config_file = File.read('spec/fixtures/test_service_providers.yml')
 config_yaml = YAML.load(config_file)
 sp = config_yaml.first
 
@@ -115,7 +115,7 @@ describe ServiceProviderConfigValidator do
     let(:logo_path) { ['assets/images/logos', bad_config['logo']].join('/') }
 
     it 'collects an error about the logo not having a corresponding file' do
-      expect(collect_sp_errors(issuer, bad_config)).to contain_exactly "No file exists for #{logo_path}"
+      expect(collect_sp_errors(issuer, bad_config)).to contain_exactly "No logo file exists for #{logo_path}"
     end
   end
 
@@ -136,7 +136,7 @@ describe ServiceProviderConfigValidator do
       let(:cert_file_path) { ['certs/sp', "#{bad_config['cert']}.crt"].join('/') }
 
       it 'collects an error about the cert not having a corresponding file' do
-        expect(collect_sp_errors(issuer, bad_config)).to contain_exactly "No file exists for #{cert_file_path}"
+        expect(collect_sp_errors(issuer, bad_config)).to contain_exactly "No cert file exists for #{cert_file_path}"
       end
     end
 

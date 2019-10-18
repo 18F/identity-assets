@@ -1,0 +1,17 @@
+# Test service providers
+
+# Example OIDC IAL1 app
+'urn:gov:gsa:openidconnect.profiles:sp:sso:example_agency:example_oidc_ial1':
+  friendly_name: 'Example OIDC IAL1 app'
+  agency: 'GSA'
+  agency_id: 9
+  ial: 1
+  logo: 'generic.svg'
+  cert: 'example'
+  redirect_uris:
+    - 'https://prod.agency.gov/openid'
+    - 'https://staging.agency.gov/openid'
+  push_notification_url: 'https://prod.agency.gov/notifications'
+  restrict_to_deploy_env: 'prod'
+  native: true
+  protocol: 'oidc'

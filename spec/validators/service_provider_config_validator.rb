@@ -64,24 +64,22 @@ module ServiceProviderConfigValidator
   end
 
   def validate_logo_file_presence
-    return unless @config['logo'].present?
-
     logo_path = ['assets/images/logos', @config['logo']].join('/')
     return if File.exist?(logo_path)
 
-    @sp_errors << "No file exists for #{logo_path}"
+    @sp_errors << "No logo file exists for #{logo_path}"
   end
 
   # rubocop:disable Metrics/MethodLength
   def require_valid_ial_config
     if @config['ial'].present?
-      unless @config['ial'] == 1 || @config['ial'] == 2
+      unless [1, 2].include?(@config['ial'])
         @sp_errors << 'ial must be defined as either 1 or 2'
         return
       end
       if @config['ial'] == 2
         require_valid_attribute_bundle
-        require_valid_ftp_url
+        require_valid_failure_to_proof_url
       end
     else
       @sp_errors << 'ial must be defined'
@@ -103,15 +101,12 @@ module ServiceProviderConfigValidator
                             city state zipcode phone]
     return if (@config['attribute_bundle'] - allowed_attributes).empty?
 
-    @sp_errors << 'attribute_bundle must be valid - may only include: '\
-                  'email, first_name, middle_name, last_name, dob, '\
-                  'ssn, address1, address2, city, state, zipcode, phone'
+    @sp_errors << "attribute_bundle must be valid - may only include: #{allowed_attributes.join(', ')}"
   end
 
-  def require_valid_ftp_url
+  def require_valid_failure_to_proof_url
     if @config['failure_to_proof_url'].present?
-      parsed_uri = URI.parse(@config['failure_to_proof_url'])
-      return if parsed_uri.scheme.present? && parsed_uri.host.present?
+      return if valid_uri?(@config['failure_to_proof_url'])
 
       @sp_errors << 'failure_to_proof_url must be valid uri'
     else
@@ -121,8 +116,7 @@ module ServiceProviderConfigValidator
 
   def require_valid_restrict_to_deploy_env
     if @config['restrict_to_deploy_env'].present?
-      return if @config['restrict_to_deploy_env'] == 'prod' ||
-                @config['restrict_to_deploy_env'] == 'staging'
+      return if %w[prod staging].include?(@config['restrict_to_deploy_env'])
 
       @sp_errors << 'restrict_to_deploy_env must be defined as either '\
                     "'prod' or 'staging'"
@@ -137,8 +131,7 @@ module ServiceProviderConfigValidator
                      'application service provider'
     elsif !@config['native']
       if @config['return_to_sp_url'].present?
-        parsed_uri = URI.parse(@config['return_to_sp_url'])
-        return if parsed_uri.scheme.present? && parsed_uri.host.present?
+        return if valid_uri?(@config['return_to_sp_url'])
 
         @sp_errors << 'return_to_sp_url must be valid uri'
       else
@@ -151,8 +144,7 @@ module ServiceProviderConfigValidator
   def validate_push_notification_url
     return unless @config['push_notification_url']
 
-    parsed_uri = URI.parse(@config['push_notification_url'])
-    return if parsed_uri.scheme.present? && parsed_uri.host.present?
+    return if valid_uri?(@config['push_notification_url'])
 
     @sp_errors << 'push_notification_url must be valid uri'
   end
@@ -173,6 +165,7 @@ module ServiceProviderConfigValidator
 
   # rubocop:disable Metrics/AbcSize
   def validate_cert_file
+    # TODO: make cert expiry limit configurable?
     return if cert.not_after.to_i > 6.months.from_now.to_i &&
         cert.public_key.n.num_bits >= 2048
 
@@ -193,7 +186,7 @@ module ServiceProviderConfigValidator
   def cert_file_exists?
     return true if File.exist?(cert_file_path)
 
-    @sp_errors << "No file exists for #{cert_file_path}"
+    @sp_errors << "No cert file exists for #{cert_file_path}"
     false
   end
 
@@ -209,8 +202,7 @@ module ServiceProviderConfigValidator
   end
 
   def valid_protocol_value?
-    return true if @config['protocol'] == 'saml' ||
-                   @config['protocol'] == 'oidc'
+    return true if %w[saml oidc].include?(@config['protocol'])
 
     @sp_errors << "protocol must be defined as 'saml' or 'oidc'"
     false
@@ -233,8 +225,7 @@ module ServiceProviderConfigValidator
   end
 
   def validate_acs_url
-    parsed_uri = URI.parse(@config['acs_url'])
-    return if parsed_uri.scheme.present? && parsed_uri.host.present?
+    return if valid_uri?(@config['acs_url'])
 
     @sp_errors << 'acs_url must be valid uri'
   end
@@ -248,8 +239,7 @@ module ServiceProviderConfigValidator
   end
 
   def validate_acs_logout_url
-    parsed_uri = URI.parse(@config['assertion_consumer_logout_service_url'])
-    return if parsed_uri.scheme.present? && parsed_uri.host.present?
+    return if valid_uri?(@config['assertion_consumer_logout_service_url'])
 
     @sp_errors << 'assertion_consumer_logout_service_url must be valid uri'
   end
@@ -264,8 +254,7 @@ module ServiceProviderConfigValidator
 
   def validate_redirect_uris
     @config['redirect_uris'].each do |uri|
-      parsed_uri = URI.parse(uri)
-      next if parsed_uri.scheme.present? && parsed_uri.host.present?
+      next if valid_uri?(uri)
 
       @sp_errors << 'redirect_uris must be valid for OIDC '\
                     'service provider'
@@ -285,6 +274,11 @@ module ServiceProviderConfigValidator
     else
       @sp_errors << 'help_text must be formatted properly'
     end
+  end
+
+  def valid_uri?(uri)
+    parsed_uri = URI.parse(uri)
+    parsed_uri.scheme.present? && parsed_uri.host.present?
   end
 end
 # rubocop:enable Metrics/ModuleLength
