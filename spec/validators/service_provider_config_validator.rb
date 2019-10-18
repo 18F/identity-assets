@@ -59,24 +59,23 @@ module ServiceProviderConfigValidator
     if @config['logo'].present?
       validate_logo_file_presence
     else
-      @sp_errors << 'Service provider logo must be defined'
+      @sp_errors << 'logo must be defined'
     end
   end
 
   def validate_logo_file_presence
     return unless @config['logo'].present?
 
-    logo_file_name = ['assets/images/logos', @config['logo']].join('/')
-    return if File.exist?(logo_file_name)
+    logo_path = ['assets/images/logos', @config['logo']].join('/')
+    return if File.exist?(logo_path)
 
-    @sp_errors << "No file exists for #{logo_file_name}"
+    @sp_errors << "No file exists for #{logo_path}"
   end
 
   # rubocop:disable Metrics/MethodLength
   def require_valid_ial_config
     if @config['ial'].present?
       unless @config['ial'] == 1 || @config['ial'] == 2
-        @sp_hash['valid'] = false
         @sp_errors << 'ial must be defined as either 1 or 2'
         return
       end
@@ -114,9 +113,9 @@ module ServiceProviderConfigValidator
       parsed_uri = URI.parse(@config['failure_to_proof_url'])
       return if parsed_uri.scheme.present? && parsed_uri.host.present?
 
-      @sp_errors << 'failure to proof url must be valid'
+      @sp_errors << 'failure_to_proof_url must be valid uri'
     else
-      @sp_errors << 'failure to proof url must be defined'
+      @sp_errors << 'failure_to_proof_url must be defined'
     end
   end
 
@@ -126,23 +125,26 @@ module ServiceProviderConfigValidator
                 @config['restrict_to_deploy_env'] == 'staging'
 
       @sp_errors << 'restrict_to_deploy_env must be defined as either '\
-                           "prod' or 'staging'"
+                    "'prod' or 'staging'"
     else
       @sp_errors << 'restrict_to_deploy_env must be defined'
     end
   end
 
   def validate_return_to_sp_url
-    return unless @config['web']
+    if @config['native'] && @config['return_to_sp_url'].present?
+      @sp_errors << 'return_to_sp_url must not be set for a native '\
+                     'application service provider'
+    elsif !@config['native']
+      if @config['return_to_sp_url'].present?
+        parsed_uri = URI.parse(@config['return_to_sp_url'])
+        return if parsed_uri.scheme.present? && parsed_uri.host.present?
 
-    if @config['return_to_sp_url'].present?
-      parsed_uri = URI.parse(@config['return_to_sp_url'])
-      return if parsed_uri.scheme.present? && parsed_uri.host.present?
-
-      @sp_errors << 'return_to_sp_url must be valid uri'
-    else
-      @sp_errors << 'return_to_sp_url must be defined for web '\
+        @sp_errors << 'return_to_sp_url must be valid uri'
+      else
+        @sp_errors << 'return_to_sp_url must be defined for web '\
                            'application service provider'
+      end
     end
   end
 
@@ -159,39 +161,40 @@ module ServiceProviderConfigValidator
     return if @config['native'] || @config['oidc_pkce']
 
     if @config['cert'].present?
-      cert_file_exists? && valid_cert_file?
+      cert_file_exists? && validate_cert_file
     else
       @sp_errors << 'cert must be defined for web application service provider'
     end
   end
 
-  def cert_file_name
+  def cert_file_path
     ['certs/sp', "#{@config['cert']}.crt"].join('/')
   end
 
   # rubocop:disable Metrics/AbcSize
-  def valid_cert_file?
-    return true if cert.not_after.to_i > 6.months.from_now.to_i &&
+  def validate_cert_file
+    return if cert.not_after.to_i > 6.months.from_now.to_i &&
         cert.public_key.n.num_bits >= 2048
 
     if cert.public_key.n.num_bits < 2048
-      @sp_errors << "#{cert_file_name} must be a cert at least 2048 bits "\
+      @sp_errors << "#{cert_file_path} must be a cert at least 2048 bits "\
                     'in length'
     elsif cert.not_after.to_i <= 6.months.from_now.to_i
-      @sp_errors << "#{cert_file_name} must be a cert that does not expire in "\
+      @sp_errors << "#{cert_file_path} must be a cert that does not expire in "\
                     'the next six months'
     end
   end
   # rubocop:enable Metrics/AbcSize
 
   def cert
-    OpenSSL::X509::Certificate.new(File.read(cert_file_name))
+    OpenSSL::X509::Certificate.new(File.read(cert_file_path))
   end
 
   def cert_file_exists?
-    return true if File.exist?(cert_file_name)
+    return true if File.exist?(cert_file_path)
 
-    @sp_errors << "No file exists for #{cert_file_name}"
+    @sp_errors << "No file exists for #{cert_file_path}"
+    false
   end
 
   def validate_protocol_config
@@ -201,7 +204,7 @@ module ServiceProviderConfigValidator
         validate_oidc_properties if @config['protocol'] == 'oidc'
       end
     else
-      @sp_errors << 'Service provider protocol must be defined'
+      @sp_errors << 'protocol must be defined'
     end
   end
 
@@ -214,31 +217,49 @@ module ServiceProviderConfigValidator
   end
 
   def validate_saml_properties
-    require_acs_url && require_acs_logout_url
+    acs_url_present? && validate_acs_url
+    acs_logout_url_present? && validate_acs_logout_url
   end
 
   def validate_oidc_properties
-    require_redirect_uris && validate_redirect_uris
+    redirect_uris_present? && validate_redirect_uris
   end
 
-  def require_acs_url
+  def acs_url_present?
     return true if @config['acs_url'].present?
 
     @sp_errors << 'acs_url must be defined for SAML service provider'
+    false
   end
 
-  def require_acs_logout_url
+  def validate_acs_url
+    parsed_uri = URI.parse(@config['acs_url'])
+    return if parsed_uri.scheme.present? && parsed_uri.host.present?
+
+    @sp_errors << 'acs_url must be valid uri'
+  end
+
+  def acs_logout_url_present?
     return true if @config['assertion_consumer_logout_service_url'].present?
 
     @sp_errors << 'assertion_consumer_logout_service_url must be '\
-                         'defined for SAML service provider'
+                  'defined for SAML service provider'
+    false
   end
 
-  def require_redirect_uris
+  def validate_acs_logout_url
+    parsed_uri = URI.parse(@config['assertion_consumer_logout_service_url'])
+    return if parsed_uri.scheme.present? && parsed_uri.host.present?
+
+    @sp_errors << 'assertion_consumer_logout_service_url must be valid uri'
+  end
+
+  def redirect_uris_present?
     return true if @config['redirect_uris'].present?
 
     @sp_errors << 'redirect_uris must be defined for OIDC '\
-                         'service provider'
+                  'service provider'
+    false
   end
 
   def validate_redirect_uris
@@ -247,7 +268,7 @@ module ServiceProviderConfigValidator
       next if parsed_uri.scheme.present? && parsed_uri.host.present?
 
       @sp_errors << 'redirect_uris must be valid for OIDC '\
-                           'service provider'
+                    'service provider'
       break
     end
   end

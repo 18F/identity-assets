@@ -11,7 +11,6 @@
   redirect_uris:
     - 'https://prod.agency.gov/openid'
     - 'https://staging.agency.gov/openid'
-  return_to_sp_url: 'https://prod.agency.gov'
   push_notification_url: 'https://prod.agency.gov/notifications'
   restrict_to_deploy_env: 'prod'
   native: true
